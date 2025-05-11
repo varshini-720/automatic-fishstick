@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solana Sweep Tool (Public RPC)</title>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+</head>
+<body>
+    <h2>Solana Sweep Tool (Public RPC)</h2>
+    <button onclick="connectWallet()">Connect Phantom Wallet</button>
+    <button onclick="sweepSol()">Sweep SOL</button>
+    <p id="status"></p>
+
+    <script>
+        const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com');
+        let wallet = null;
+
+        async function connectWallet() {
+            try {
+                const resp = await window.solana.connect();
+                wallet = resp.publicKey.toString();
+                document.getElementById("status").innerText = "Connected: " + wallet;
+            } catch (err) {
+                document.getElementById("status").innerText = "Connection failed";
+            }
+        }
+
+        async function sweepSol() {
+            if (!wallet) {
+                document.getElementById("status").innerText = "Connect wallet first!";
+                return;
+            }
+            document.getElementById("status").innerText = "Fetching balance...";
+            try {
+                const pubKey = new solanaWeb3.PublicKey(wallet);
+                const balance = await connection.getBalance(pubKey);
+                document.getElementById("status").innerText = "Balance: " + (balance / solanaWeb3.LAMPORTS_PER_SOL) + " SOL";
+            } catch (err) {
+                document.getElementById("status").innerText = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
